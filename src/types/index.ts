@@ -1,3 +1,4 @@
+
 export interface Article {
   id: string;
   title: string;
@@ -5,9 +6,16 @@ export interface Article {
   published: boolean;
   createdAt: string;
   likes: number;
+  author: string;
 }
 
 export interface TrendingArticle {
   title: string;
   summary: string;
+}
+
+export interface User {
+    id: string;
+    username: string;
+    email: string;
 }

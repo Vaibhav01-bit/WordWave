@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useContext } from 'react';
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { LogIn, AtSign, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { AuthContext } from '@/context/AuthContext';
+import type { User } from '@/types';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -31,11 +33,14 @@ export default function LoginPage() {
     // In a real app, you'd validate credentials against a backend
     console.log('Logging in with:', { email, password });
     
-    // Simulate API call
+    // Simulate API call and get user data
     setTimeout(() => {
-      login();
-      router.push('/');
-      setIsSubmitting(false);
+        // In a real app, this user data would come from your backend
+        const username = email.split('@')[0];
+        const user: User = { id: Date.now().toString(), email, username };
+        login(user);
+        router.push('/');
+        setIsSubmitting(false);
     }, 1000);
   };
 

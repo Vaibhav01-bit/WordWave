@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
@@ -9,7 +10,7 @@ interface ArticleContextType {
   articles: Article[];
   trendingArticle: TrendingArticle | null;
   loading: boolean;
-  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes'>) => void;
+  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author'>, author: string) => void;
   updateArticleStatus: (id: string, published: boolean) => void;
   deleteArticle: (id: string) => void;
   likeArticle: (id: string) => void;
@@ -29,6 +30,7 @@ const sampleArticle: Article = {
   published: true,
   createdAt: new Date().toISOString(),
   likes: 15,
+  author: 'admin',
 };
 
 export function ArticleProvider({ children }: { children: ReactNode }) {
@@ -76,13 +78,14 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes'>) => {
+  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author'>, author: string) => {
     const newArticle: Article = {
       ...articleData,
       id: Date.now().toString(),
       published: false,
       createdAt: new Date().toISOString(),
       likes: 0,
+      author: author,
     };
     const updatedArticles = [newArticle, ...articles];
     persistArticles(updatedArticles);

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useContext } from 'react';
@@ -7,6 +8,7 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 
 import { ArticleContext } from '@/context/ArticleContext';
+import { AuthContext } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,7 +25,8 @@ const articleSchema = z.object({
 type ArticleFormValues = z.infer<typeof articleSchema>;
 
 export default function SubmitPage() {
-  const context = useContext(ArticleContext);
+  const articleContext = useContext(ArticleContext);
+  const authContext = useContext(AuthContext);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -35,20 +38,29 @@ export default function SubmitPage() {
     },
   });
 
-  if (!context) {
+  if (!articleContext || !authContext) {
     return <div>Loading...</div>;
   }
 
-  const { addArticle } = context;
+  const { addArticle } = articleContext;
+  const { user } = authContext;
 
   const onSubmit: SubmitHandler<ArticleFormValues> = (data) => {
-    addArticle(data);
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to submit an article.",
+        });
+        return;
+    }
+    addArticle(data, user.username);
     toast({
       title: 'Article Submitted!',
       description: 'Your article has been sent for admin approval.',
     });
     form.reset();
-    router.push('/');
+    router.push('/profile');
   };
 
   return (

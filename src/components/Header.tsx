@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { useState, useContext } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -20,11 +21,12 @@ export default function Header() {
     return null;
   }
   
-  const { isAuthenticated, logout } = authContext;
+  const { isAuthenticated, logout, user } = authContext;
 
   const navLinks = isAuthenticated ? [
     { href: '/', label: 'Home' },
     { href: '/submit', label: 'Submit Article' },
+    { href: '/profile', label: 'Profile' },
     { href: '/admin', label: 'Admin' },
   ] : [
     { href: '/login', label: 'Login' },
@@ -55,6 +57,12 @@ export default function Header() {
         </div>
 
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-auto">
+          {isAuthenticated && user && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              <span>{user.username}</span>
+            </div>
+          )}
           {navLinks.map(link => <NavLink key={link.href} {...link} />)}
            {isAuthenticated && (
               <Button variant="ghost" size="sm" onClick={logout}>
