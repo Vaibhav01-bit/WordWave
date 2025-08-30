@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { Article } from '@/types';
-import { Flame, CheckCircle, Hourglass, Trash2 } from 'lucide-react';
+import { Flame, CheckCircle, Hourglass, Trash2, User } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +31,14 @@ export default function AdminPage() {
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authContext && !authContext.loading) {
-      if (authContext.user?.role !== 'admin') {
-        router.push('/');
-      }
+    // Redirect non-admins or if auth is still loading
+    if (authContext && !authContext.loading && authContext.user?.role !== 'admin') {
+      router.push('/');
     }
   }, [authContext, router]);
 
-  if (!articleContext || !authContext || authContext.loading || authContext.user?.role !== 'admin') {
+  // Render loading state or null if user is not an admin, to prevent flashing of content
+  if (!authContext || authContext.loading || authContext.user?.role !== 'admin' || !articleContext) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -74,6 +74,7 @@ export default function AdminPage() {
                 <TableHeader>
                     <TableRow>
                     <TableHead>Title</TableHead>
+                    <TableHead>Author</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-center">Publish</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -83,6 +84,10 @@ export default function AdminPage() {
                     {sortedArticles.length > 0 ? sortedArticles.map((article) => (
                     <TableRow key={article.id}>
                         <TableCell className="font-medium">{article.title}</TableCell>
+                        <TableCell className="text-muted-foreground flex items-center gap-2">
+                           <User className="h-4 w-4" />
+                           {article.author}
+                        </TableCell>
                         <TableCell>
                         {article.published ? (
                             <Badge variant="default" className="bg-green-500 hover:bg-green-600">
@@ -139,7 +144,7 @@ export default function AdminPage() {
                     </TableRow>
                     )) : (
                         <TableRow>
-                            <TableCell colSpan={4} className="h-24 text-center">
+                            <TableCell colSpan={5} className="h-24 text-center">
                                 No articles submitted yet.
                             </TableCell>
                         </TableRow>
