@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArticleContext } from '@/context/ArticleContext';
+import { AuthContext } from '@/context/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
@@ -9,13 +11,29 @@ import TrendingArticleCard from '@/components/TrendingArticleCard';
 import type { Article } from '@/types';
 
 export default function Home() {
-  const context = useContext(ArticleContext);
+  const router = useRouter();
+  const authContext = useContext(AuthContext);
+  const articleContext = useContext(ArticleContext);
   const [searchQuery, setSearchQuery] = useState('');
 
-  if (!context) {
-    return null; // or a loading spinner
+  useEffect(() => {
+    if (authContext && !authContext.isAuthenticated && !authContext.loading) {
+      router.push('/login');
+    }
+  }, [authContext, router]);
+
+
+  if (!articleContext || !authContext || authContext.loading || !authContext.isAuthenticated) {
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+                <p>Loading...</p>
+            </div>
+        </div>
+    );
   }
-  const { articles, trendingArticle, loading } = context;
+
+  const { articles, trendingArticle, loading } = articleContext;
 
   const publishedArticles = useMemo(() => {
     return articles

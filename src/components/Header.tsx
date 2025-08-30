@@ -2,24 +2,34 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { Menu, X, LogOut } from 'lucide-react';
+import { useState, useContext } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { Logo } from './icons/Logo';
-
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/submit', label: 'Submit Article' },
-  { href: '/admin', label: 'Admin' },
-  { href: '/login', label: 'Login' },
-];
+import { AuthContext } from '@/context/AuthContext';
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    return null;
+  }
+  
+  const { isAuthenticated, logout } = authContext;
+
+  const navLinks = isAuthenticated ? [
+    { href: '/', label: 'Home' },
+    { href: '/submit', label: 'Submit Article' },
+    { href: '/admin', label: 'Admin' },
+  ] : [
+    { href: '/login', label: 'Login' },
+    { href: '/signup', label: 'Sign Up' },
+  ];
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
@@ -46,6 +56,12 @@ export default function Header() {
 
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-auto">
           {navLinks.map(link => <NavLink key={link.href} {...link} />)}
+           {isAuthenticated && (
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            )}
         </nav>
 
         <div className="flex flex-1 items-center justify-end space-x-2 md:hidden">
@@ -69,6 +85,12 @@ export default function Header() {
               </div>
               <nav className="flex flex-col space-y-4">
                 {navLinks.map(link => <NavLink key={link.href} {...link} />)}
+                 {isAuthenticated && (
+                    <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); }} className="justify-start">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                  )}
               </nav>
             </SheetContent>
           </Sheet>

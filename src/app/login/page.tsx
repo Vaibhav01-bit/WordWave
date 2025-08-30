@@ -1,26 +1,42 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { LogIn, AtSign, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const router = useRouter();
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    // This should not happen if the provider is set up correctly
+    return <div>Loading auth...</div>
+  }
+
+  const { login } = authContext;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    // In a real app, you'd validate credentials against a backend
     console.log('Logging in with:', { email, password });
+    
     // Simulate API call
     setTimeout(() => {
+      login();
+      router.push('/');
       setIsSubmitting(false);
-    }, 1500);
+    }, 1000);
   };
 
   return (
