@@ -37,7 +37,7 @@ export default function LoginPage() {
     setTimeout(() => {
         // In a real app, this user data would come from your backend
         const username = email.split('@')[0];
-        const isAdmin = email === 'vi1804365@gmail.com' && password === 'Vaibhav07';
+        const isAdmin = email === 'admin@example.com' && password === 'admin';
         
         const user: User = { 
             id: Date.now().toString(), 

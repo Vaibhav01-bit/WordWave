@@ -31,8 +31,10 @@ export default function AdminPage() {
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authContext && !authContext.loading && authContext.user?.role !== 'admin') {
-      router.push('/');
+    if (authContext && !authContext.loading) {
+      if (authContext.user?.role !== 'admin') {
+        router.push('/');
+      }
     }
   }, [authContext, router]);
 
