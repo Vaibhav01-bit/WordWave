@@ -22,20 +22,10 @@ export default function Home() {
     }
   }, [authContext, router]);
 
-
-  if (!articleContext || !authContext || authContext.loading || !authContext.isAuthenticated) {
-    return (
-        <div className="flex items-center justify-center h-screen">
-            <div className="text-center">
-                <p>Loading...</p>
-            </div>
-        </div>
-    );
-  }
-
-  const { articles, trendingArticle, loading } = articleContext;
+  const { articles, trendingArticle, loading } = articleContext || {};
 
   const publishedArticles = useMemo(() => {
+    if (!articles) return [];
     return articles
       .filter((article: Article) => article.published)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -51,6 +41,16 @@ export default function Home() {
         article.content.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [publishedArticles, searchQuery]);
+
+  if (!articleContext || !authContext || authContext.loading || !authContext.isAuthenticated) {
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+                <p>Loading...</p>
+            </div>
+        </div>
+    );
+  }
 
   if (loading) {
     return (
