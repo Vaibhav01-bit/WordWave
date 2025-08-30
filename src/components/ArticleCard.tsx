@@ -13,7 +13,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
   return (
     <Link href={`/articles/${article.id}`} className="group block">
-      <Card className="h-full flex flex-col transition-all duration-300 ease-in-out group-hover:shadow-lg group-hover:-translate-y-1 border-border/60 hover:border-primary">
+      <Card className="h-full flex flex-col transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-2 border-border/60 hover:border-primary">
         <CardHeader>
           <CardTitle className="text-xl leading-tight group-hover:text-primary transition-colors">{article.title}</CardTitle>
           <CardDescription>

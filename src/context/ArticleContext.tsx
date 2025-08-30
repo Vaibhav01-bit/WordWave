@@ -11,6 +11,7 @@ interface ArticleContextType {
   loading: boolean;
   addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt'>) => void;
   updateArticleStatus: (id: string, published: boolean) => void;
+  deleteArticle: (id: string) => void;
   setTrendingArticle: (article: Article) => Promise<void>;
   getArticleById: (id: string) => Article | undefined;
 }
@@ -74,6 +75,15 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     );
     persistArticles(updatedArticles);
   }, [articles]);
+
+  const deleteArticle = useCallback((id: string) => {
+    const updatedArticles = articles.filter(article => article.id !== id);
+    persistArticles(updatedArticles);
+    toast({
+        title: "Article Deleted",
+        description: "The article has been successfully deleted.",
+    });
+  }, [articles, toast]);
   
   const setTrendingArticle = async (article: Article) => {
       try {
@@ -111,6 +121,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     loading,
     addArticle,
     updateArticleStatus,
+    deleteArticle,
     setTrendingArticle,
     getArticleById,
   };

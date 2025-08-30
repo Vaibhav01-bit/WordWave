@@ -8,7 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { Article } from '@/types';
-import { Flame, CheckCircle, XCircle, Hourglass } from 'lucide-react';
+import { Flame, CheckCircle, Hourglass, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function AdminPage() {
   const context = useContext(ArticleContext);
@@ -18,7 +29,7 @@ export default function AdminPage() {
     return <div>Loading...</div>;
   }
 
-  const { articles, updateArticleStatus, setTrendingArticle, loading } = context;
+  const { articles, updateArticleStatus, setTrendingArticle, loading, deleteArticle } = context;
 
   const handleSetTrending = async (article: Article) => {
     setIsSubmitting(article.id);
@@ -73,7 +84,7 @@ export default function AdminPage() {
                             aria-label={`Publish status for ${article.title}`}
                         />
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right space-x-2">
                         <Button
                             variant="outline"
                             size="sm"
@@ -83,6 +94,28 @@ export default function AdminPage() {
                             <Flame className="mr-2 h-4 w-4 text-accent" />
                             {isSubmitting === article.id ? 'Generating...' : 'Make Trending'}
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the article.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteArticle(article.id)}>
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         </TableCell>
                     </TableRow>
                     )) : (
