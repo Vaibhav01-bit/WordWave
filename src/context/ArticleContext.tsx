@@ -9,9 +9,10 @@ interface ArticleContextType {
   articles: Article[];
   trendingArticle: TrendingArticle | null;
   loading: boolean;
-  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt'>) => void;
+  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes'>) => void;
   updateArticleStatus: (id: string, published: boolean) => void;
   deleteArticle: (id: string) => void;
+  likeArticle: (id: string) => void;
   setTrendingArticle: (article: Article) => Promise<void>;
   getArticleById: (id: string) => Article | undefined;
 }
@@ -58,12 +59,13 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt'>) => {
+  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes'>) => {
     const newArticle: Article = {
       ...articleData,
       id: Date.now().toString(),
       published: false,
       createdAt: new Date().toISOString(),
+      likes: 0,
     };
     const updatedArticles = [newArticle, ...articles];
     persistArticles(updatedArticles);
@@ -84,6 +86,13 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
         description: "The article has been successfully deleted.",
     });
   }, [articles, toast]);
+
+  const likeArticle = useCallback((id: string) => {
+    const updatedArticles = articles.map(article =>
+        article.id === id ? { ...article, likes: (article.likes || 0) + 1 } : article
+    );
+    persistArticles(updatedArticles);
+  }, [articles]);
   
   const setTrendingArticle = async (article: Article) => {
       try {
@@ -122,6 +131,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     addArticle,
     updateArticleStatus,
     deleteArticle,
+    likeArticle,
     setTrendingArticle,
     getArticleById,
   };

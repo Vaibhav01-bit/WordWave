@@ -4,8 +4,8 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArticleContext } from '@/context/ArticleContext';
 import type { Article } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { ArrowLeft, Calendar, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -29,7 +29,13 @@ export default function ArticlePage() {
         setArticle(null); // Not found
       }
     }
-  }, [context, id]);
+  }, [context, id, context?.articles]);
+
+  const handleLike = () => {
+    if (context && id) {
+        context.likeArticle(id);
+    }
+  }
 
   if (article === undefined || context?.loading) {
     return (
@@ -88,6 +94,12 @@ export default function ArticlePage() {
             {article.content}
           </div>
         </CardContent>
+        <CardFooter className="flex justify-end">
+            <Button variant="outline" onClick={handleLike}>
+                <Heart className="mr-2 h-4 w-4" />
+                Like ({article.likes || 0})
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );

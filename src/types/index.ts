@@ -4,6 +4,7 @@ export interface Article {
   content: string;
   published: boolean;
   createdAt: string;
+  likes: number;
 }
 
 export interface TrendingArticle {
