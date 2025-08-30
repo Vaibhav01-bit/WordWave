@@ -14,6 +14,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/submit', label: 'Submit Article' },
   { href: '/admin', label: 'Admin' },
+  { href: '/login', label: 'Login' },
 ];
 
 export default function Header() {
