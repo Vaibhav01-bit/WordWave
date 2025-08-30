@@ -1,8 +1,10 @@
+
 "use client";
 
 import { useContext, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArticleContext } from '@/context/ArticleContext';
+import { AuthContext } from '@/context/AuthContext';
 import type { Article } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { ArrowLeft, Calendar, Heart } from 'lucide-react';
@@ -12,32 +14,36 @@ import Link from 'next/link';
 export default function ArticlePage() {
   const params = useParams();
   const router = useRouter();
-  const context = useContext(ArticleContext);
+  const articleContext = useContext(ArticleContext);
+  const authContext = useContext(AuthContext);
   const [article, setArticle] = useState<Article | null | undefined>(undefined);
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   useEffect(() => {
-    if (context && id) {
-      const foundArticle = context.getArticleById(id);
-      // For this app, we allow viewing unpublished articles if you have the link,
-      // as there is no admin/user role separation.
-      // In a real app, you would add: && foundArticle.published
+    if (articleContext && authContext && id) {
+      const foundArticle = articleContext.getArticleById(id);
+      
       if (foundArticle) {
-        setArticle(foundArticle);
+        // If the article isn't published, only allow admins to see it.
+        if (!foundArticle.published && authContext.user?.role !== 'admin') {
+          setArticle(null); // Treat as "Not Found" for non-admins
+        } else {
+          setArticle(foundArticle);
+        }
       } else {
         setArticle(null); // Not found
       }
     }
-  }, [context, id, context?.articles]);
+  }, [articleContext, authContext, id, articleContext?.articles]);
 
   const handleLike = () => {
-    if (context && id) {
-        context.likeArticle(id);
+    if (articleContext && id) {
+        articleContext.likeArticle(id);
     }
   }
 
-  if (article === undefined || context?.loading) {
+  if (article === undefined || articleContext?.loading || authContext?.loading) {
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
             <div className="animate-pulse space-y-6">
