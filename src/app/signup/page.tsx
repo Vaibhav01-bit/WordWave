@@ -1,26 +1,38 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { UserPlus, AtSign, Lock, User } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    // In a real app, you would send this to your backend for user creation.
     console.log('Signing up with:', { username, email, password });
-    // Simulate API call
+    
+    // Simulate API call for account creation
     setTimeout(() => {
       setIsSubmitting(false);
+      toast({
+        title: 'Account Created!',
+        description: 'You can now log in with your new credentials.',
+      });
+      router.push('/login');
     }, 1500);
   };
 
