@@ -37,7 +37,15 @@ export default function LoginPage() {
     setTimeout(() => {
         // In a real app, this user data would come from your backend
         const username = email.split('@')[0];
-        const user: User = { id: Date.now().toString(), email, username };
+        const isAdmin = email === 'vi1804365@gmail.com' && password === 'Vaibhav07';
+        
+        const user: User = { 
+            id: Date.now().toString(), 
+            email, 
+            username,
+            role: isAdmin ? 'admin' : 'user'
+        };
+
         login(user);
         router.push('/');
         setIsSubmitting(false);

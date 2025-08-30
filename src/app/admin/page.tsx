@@ -1,6 +1,9 @@
+
 "use client";
 
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { AuthContext } from '@/context/AuthContext';
 import { ArticleContext } from '@/context/ArticleContext';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -22,14 +25,28 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export default function AdminPage() {
-  const context = useContext(ArticleContext);
+  const authContext = useContext(AuthContext);
+  const articleContext = useContext(ArticleContext);
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
-  if (!context) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    if (authContext && !authContext.loading && authContext.user?.role !== 'admin') {
+      router.push('/');
+    }
+  }, [authContext, router]);
+
+  if (!articleContext || !authContext || authContext.loading || authContext.user?.role !== 'admin') {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+            <p>Loading or unauthorized...</p>
+        </div>
+      </div>
+    );
   }
 
-  const { articles, updateArticleStatus, setTrendingArticle, loading, deleteArticle } = context;
+  const { articles, updateArticleStatus, setTrendingArticle, loading, deleteArticle } = articleContext;
 
   const handleSetTrending = async (article: Article) => {
     setIsSubmitting(article.id);

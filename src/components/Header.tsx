@@ -27,7 +27,7 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/submit', label: 'Submit Article' },
     { href: '/profile', label: 'Profile' },
-    { href: '/admin', label: 'Admin' },
+    ...(user?.role === 'admin' ? [{ href: '/admin', label: 'Admin' }] : []),
   ] : [
     { href: '/login', label: 'Login' },
     { href: '/signup', label: 'Sign Up' },
