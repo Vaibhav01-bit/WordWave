@@ -22,6 +22,15 @@ export const ArticleContext = createContext<ArticleContextType | undefined>(unde
 const ARTICLES_STORAGE_KEY = 'devnovate_articles';
 const TRENDING_ARTICLE_STORAGE_KEY = 'devnovate_trending_article';
 
+const sampleArticle: Article = {
+  id: '1',
+  title: 'Getting Started with Next.js',
+  content: 'Next.js is a React framework for building full-stack web applications. You can use React Components to build user interfaces, and Next.js for additional features and optimizations.\n\nUnder the hood, Next.js also abstracts and automatically configures tooling needed for React, like bundling, compiling, and more. This allows you to focus on building your application instead of spending time with configuration.\n\nWhether you\'re an individual developer or part of a larger team, Next.js can help you build interactive, dynamic, and fast React applications.',
+  published: true,
+  createdAt: new Date().toISOString(),
+  likes: 15,
+};
+
 export function ArticleProvider({ children }: { children: ReactNode }) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [trendingArticle, setTrendingArticleState] = useState<TrendingArticle | null>(null);
@@ -32,7 +41,14 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     try {
       const articlesFromStorage = localStorage.getItem(ARTICLES_STORAGE_KEY);
       if (articlesFromStorage) {
-        setArticles(JSON.parse(articlesFromStorage));
+        const parsedArticles = JSON.parse(articlesFromStorage);
+        if (parsedArticles.length > 0) {
+            setArticles(parsedArticles);
+        } else {
+            setArticles([sampleArticle]);
+        }
+      } else {
+        setArticles([sampleArticle]);
       }
       const trendingFromStorage = localStorage.getItem(TRENDING_ARTICLE_STORAGE_KEY);
       if (trendingFromStorage) {
@@ -40,6 +56,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
+      setArticles([sampleArticle]);
     } finally {
       setLoading(false);
     }
