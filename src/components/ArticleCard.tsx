@@ -25,7 +25,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
-          <p className="text-muted-foreground text-sm leading-relaxed">{snippet}</p>
+          <p className="text-muted-foreground text-sm leading-relaxed break-words">{snippet}</p>
         </CardContent>
         <div className="p-6 pt-0 flex justify-end items-center">
             <span className="text-sm font-semibold text-primary flex items-center gap-2">
