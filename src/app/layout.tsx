@@ -6,8 +6,8 @@ import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
 
 export const metadata: Metadata = {
-  title: 'DevNovate Articles',
-  description: 'A blogging and article platform for Devnovate.',
+  title: 'WordWave',
+  description: 'A blogging and article platform by WordWave.',
 };
 
 export default function RootLayout({

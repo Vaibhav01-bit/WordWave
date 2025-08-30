@@ -20,8 +20,8 @@ interface ArticleContextType {
 
 export const ArticleContext = createContext<ArticleContextType | undefined>(undefined);
 
-const ARTICLES_STORAGE_KEY = 'devnovate_articles';
-const TRENDING_ARTICLE_STORAGE_KEY = 'devnovate_trending_article';
+const ARTICLES_STORAGE_KEY = 'wordwave_articles';
+const TRENDING_ARTICLE_STORAGE_KEY = 'wordwave_trending_article';
 
 const sampleArticle: Article = {
   id: '1',

@@ -15,8 +15,8 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_STORAGE_KEY = 'devnovate_auth';
-const USER_STORAGE_KEY = 'devnovate_user';
+const AUTH_STORAGE_KEY = 'wordwave_auth';
+const USER_STORAGE_KEY = 'wordwave_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);

@@ -52,7 +52,7 @@ export default function Header() {
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
             <Logo className="h-6 w-6 text-primary" />
-            <span className="font-bold">DevNovate Articles</span>
+            <span className="font-bold">WordWave</span>
           </Link>
         </div>
 
@@ -84,7 +84,7 @@ export default function Header() {
               <div className="flex justify-between items-center p-4 -m-4 mb-4 border-b">
                  <Link href="/" className="flex items-center space-x-2" onClick={() => setMobileMenuOpen(false)}>
                     <Logo className="h-6 w-6 text-primary" />
-                    <span className="font-bold text-sm">DevNovate</span>
+                    <span className="font-bold text-sm">WordWave</span>
                   </Link>
                 <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                   <X className="h-5 w-5" />
