@@ -52,7 +52,7 @@ export default function ProfilePage() {
                       <TableCell className="font-medium">{article.title}</TableCell>
                       <TableCell className="text-right">
                         {article.published ? (
-                          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+                          <Badge variant="default">
                             <CheckCircle className="mr-1 h-3 w-3" />
                             Published
                           </Badge>
