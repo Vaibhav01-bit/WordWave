@@ -115,29 +115,43 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
   }, [articles]);
   
   const setTrendingArticle = async (article: Article) => {
-      try {
+    // Immediately set the trending article with a placeholder summary
+    const newTrendingArticle: TrendingArticle = {
+      title: article.title,
+      summary: 'Generating summary...'
+    };
+    persistTrendingArticle(newTrendingArticle);
+    toast({
+        title: "Trending Article Updated",
+        description: `"${article.title}" is now trending. Summary is being generated.`,
+    });
+
+    // Generate the summary in the background
+    try {
         const result = await generateTrendingSummary(article.title, article.content);
         if (result && result.articleSummary) {
-          const newTrendingArticle = {
-            title: article.title,
+          const finalTrendingArticle = {
+            ...newTrendingArticle,
             summary: result.articleSummary
           };
-          persistTrendingArticle(newTrendingArticle);
-          toast({
-            title: "Success",
-            description: `"${article.title}" is now the trending article.`,
-          });
+          persistTrendingArticle(finalTrendingArticle);
         } else {
-            throw new Error("Failed to generate summary.")
+            throw new Error("Failed to generate summary.");
         }
-      } catch (error) {
+    } catch (error) {
         console.error("Failed to set trending article:", error);
+        // Optionally revert or show an error state
+        const errorTrendingArticle = {
+            ...newTrendingArticle,
+            summary: 'Could not generate summary. Please try again.'
+        };
+        persistTrendingArticle(errorTrendingArticle);
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Could not generate trending summary. Please try again.",
+            description: "Could not generate trending summary.",
         });
-      }
+    }
   };
 
   const getArticleById = useCallback((id: string) => {
