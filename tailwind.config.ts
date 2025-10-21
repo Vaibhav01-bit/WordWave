@@ -65,7 +65,14 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        'animated-background': '#1a202c', // Example color
+        // New color palette
+        brand: {
+          primary: '#6A5ACD', // SlateBlue
+          secondary: '#FF6347', // Tomato
+          accent: '#4682B4', // SteelBlue
+          background: '#F0F8FF', // AliceBlue
+          foreground: '#36454F', // Charcoal
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

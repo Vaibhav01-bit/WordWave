@@ -7,6 +7,7 @@ export interface Article {
   createdAt: string;
   likes: number;
   author: string;
+  readingTime: number;
 }
 
 export interface TrendingArticle {

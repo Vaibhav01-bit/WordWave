@@ -9,8 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 interface ArticleContextType {
   articles: Article[];
   trendingArticle: TrendingArticle | null;
+  weeklyPopular: Article[];
   loading: boolean;
-  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author'>, author: string) => void;
+  addArticle: (article: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author' | 'readingTime'>, author: string) => void;
   updateArticleStatus: (id: string, published: boolean) => void;
   deleteArticle: (id: string) => void;
   likeArticle: (id: string) => void;
@@ -23,6 +24,12 @@ export const ArticleContext = createContext<ArticleContextType | undefined>(unde
 const ARTICLES_STORAGE_KEY = 'wordwave_articles';
 const TRENDING_ARTICLE_STORAGE_KEY = 'wordwave_trending_article';
 
+const calculateReadingTime = (content: string): number => {
+    const wordsPerMinute = 200;
+    const wordCount = content.split(/\s+/).length;
+    return Math.ceil(wordCount / wordsPerMinute);
+};
+
 const sampleArticle: Article = {
   id: '1',
   title: 'Getting Started with Next.js',
@@ -31,27 +38,41 @@ const sampleArticle: Article = {
   createdAt: new Date().toISOString(),
   likes: 15,
   author: 'admin',
+  readingTime: calculateReadingTime('Next.js is a React framework for building full-stack web applications. You can use React Components to build user interfaces, and Next.js for additional features and optimizations.\n\nUnder the hood, Next.js also abstracts and automatically configures tooling needed for React, like bundling, compiling, and more. This allows you to focus on building your application instead of spending time with configuration.\n\nWhether you\'re an individual developer or part of a larger team, Next.js can help you build interactive, dynamic, and fast React applications.'),
 };
 
 export function ArticleProvider({ children }: { children: ReactNode }) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [trendingArticle, setTrendingArticleState] = useState<TrendingArticle | null>(null);
+  const [weeklyPopular, setWeeklyPopular] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const calculateWeeklyPopular = useCallback((articlesToProcess: Article[]) => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const popular = articlesToProcess
+      .filter(article => new Date(article.createdAt) > oneWeekAgo && article.published)
+      .sort((a, b) => b.likes - a.likes)
+      .slice(0, 5);
+    
+    setWeeklyPopular(popular);
+  }, []);
 
   useEffect(() => {
     try {
       const articlesFromStorage = localStorage.getItem(ARTICLES_STORAGE_KEY);
+      let loadedArticles: Article[] = [sampleArticle];
       if (articlesFromStorage) {
         const parsedArticles = JSON.parse(articlesFromStorage);
         if (parsedArticles.length > 0) {
-            setArticles(parsedArticles);
-        } else {
-            setArticles([sampleArticle]);
+          loadedArticles = parsedArticles;
         }
-      } else {
-        setArticles([sampleArticle]);
       }
+      setArticles(loadedArticles);
+      calculateWeeklyPopular(loadedArticles);
+      
       const trendingFromStorage = localStorage.getItem(TRENDING_ARTICLE_STORAGE_KEY);
       if (trendingFromStorage) {
         setTrendingArticleState(JSON.parse(trendingFromStorage));
@@ -62,7 +83,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [calculateWeeklyPopular]);
   
   const persistTrendingArticle = useCallback((trending: TrendingArticle | null) => {
     setTrendingArticleState(trending);
@@ -73,7 +94,13 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author'>, author: string) => {
+  const updateArticlesAndPopular = (updatedArticles: Article[]) => {
+    setArticles(updatedArticles);
+    localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+    calculateWeeklyPopular(updatedArticles);
+  };
+
+  const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author' | 'readingTime'>, author: string) => {
     const newArticle: Article = {
       ...articleData,
       id: Date.now().toString(),
@@ -81,67 +108,47 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
       likes: 0,
       author: author,
+      readingTime: calculateReadingTime(articleData.content),
     };
-    setArticles(prevArticles => {
-        const updatedArticles = [newArticle, ...prevArticles];
-        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
-        return updatedArticles;
-    });
-  }, []);
+    updateArticlesAndPopular([newArticle, ...articles]);
+  }, [articles, calculateWeeklyPopular]);
 
   const updateArticleStatus = useCallback((id: string, published: boolean) => {
-    setArticles(prevArticles => {
-        const articleToUpdate = prevArticles.find(article => article.id === id);
-        if (!articleToUpdate) {
-            return prevArticles;
-        }
+    const articleToUpdate = articles.find(article => article.id === id);
+    if (!articleToUpdate) return;
 
-        const updatedArticles = prevArticles.map(article =>
-            article.id === id ? { ...article, published } : article
-        );
+    const updatedArticles = articles.map(article =>
+        article.id === id ? { ...article, published } : article
+    );
+    updateArticlesAndPopular(updatedArticles);
 
-        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
-
-        toast({
-            title: `Article ${published ? 'Published' : 'Unpublished'}`,
-            description: `"${articleToUpdate.title}" has been successfully ${published ? 'published' : 'unpublished'}.`,
-        });
-
-        return updatedArticles;
+    toast({
+        title: `Article ${published ? 'Published' : 'Unpublished'}`,
+        description: `"${articleToUpdate.title}" has been successfully ${published ? 'published' : 'unpublished'}.`,
     });
-  }, [toast]);
+  }, [articles, calculateWeeklyPopular, toast]);
 
   const deleteArticle = useCallback((id: string) => {
-    setArticles(prevArticles => {
-        const articleToDelete = prevArticles.find(article => article.id === id);
-        if (!articleToDelete) {
-            return prevArticles;
-        }
+    const articleToDelete = articles.find(article => article.id === id);
+    if (!articleToDelete) return;
 
-        const updatedArticles = prevArticles.filter(article => article.id !== id);
-        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+    const updatedArticles = articles.filter(article => article.id !== id);
+    updateArticlesAndPopular(updatedArticles);
 
-        toast({
-            title: "Article Deleted",
-            description: `"${articleToDelete.title}" has been successfully deleted.`,
-        });
-
-        return updatedArticles;
+    toast({
+        title: "Article Deleted",
+        description: `"${articleToDelete.title}" has been successfully deleted.`,
     });
-  }, [toast]);
+  }, [articles, calculateWeeklyPopular, toast]);
 
   const likeArticle = useCallback((id: string) => {
-    setArticles(prevArticles => {
-        const updatedArticles = prevArticles.map(article =>
-            article.id === id ? { ...article, likes: (article.likes || 0) + 1 } : article
-        );
-        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
-        return updatedArticles;
-    });
-  }, []);
+    const updatedArticles = articles.map(article =>
+        article.id === id ? { ...article, likes: (article.likes || 0) + 1 } : article
+    );
+    updateArticlesAndPopular(updatedArticles);
+  }, [articles, calculateWeeklyPopular]);
   
   const setTrendingArticle = useCallback(async (article: Article) => {
-    // Immediately set the trending article with a placeholder summary
     const newTrendingArticle: TrendingArticle = {
       title: article.title,
       summary: 'Generating summary...'
@@ -152,7 +159,6 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
         description: `"${article.title}" is now trending. Summary is being generated.`,
     });
 
-    // Generate the summary in the background
     try {
         const result = await generateTrendingSummary(article.title, article.content);
         if (result && result.articleSummary) {
@@ -166,7 +172,6 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
         }
     } catch (error) {
         console.error("Failed to set trending article:", error);
-        // Optionally revert or show an error state
         const errorTrendingArticle = {
             ...newTrendingArticle,
             summary: 'Could not generate summary. Please try again.'
@@ -187,6 +192,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
   const value = {
     articles,
     trendingArticle,
+    weeklyPopular,
     loading,
     addArticle,
     updateArticleStatus,

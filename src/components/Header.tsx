@@ -37,8 +37,8 @@ export default function Header() {
     <Link
       href={href}
       className={cn(
-        "text-sm font-medium transition-colors hover:text-primary",
-        pathname === href ? "text-primary" : "text-muted-foreground"
+        "text-sm font-medium transition-colors hover:text-brand-primary",
+        pathname === href ? "text-brand-primary font-bold" : "text-muted-foreground"
       )}
       onClick={() => setMobileMenuOpen(false)}
     >
@@ -47,25 +47,25 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-brand-background/95 backdrop-blur supports-[backdrop-filter]:bg-brand-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Logo className="h-6 w-6 text-primary" />
-            <span className="font-bold">WordWave</span>
+            <Logo className="h-6 w-6 text-brand-primary" />
+            <span className="font-bold text-brand-primary">WordWave</span>
           </Link>
         </div>
 
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-auto">
           {isAuthenticated && user && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-brand-foreground">
               <User className="h-4 w-4" />
               <span>{user.username}</span>
             </div>
           )}
           {navLinks.map(link => <NavLink key={link.href} {...link} />)}
            {isAuthenticated && (
-              <Button variant="ghost" size="sm" onClick={logout}>
+              <Button variant="outline" size="sm" onClick={logout} className="border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-white">
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
@@ -76,25 +76,25 @@ export default function Header() {
           <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+                <Menu className="h-5 w-5 text-brand-primary" />
                 <span className="sr-only">Open Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[240px]">
+            <SheetContent side="right" className="w-[240px] bg-brand-background">
               <div className="flex justify-between items-center p-4 -m-4 mb-4 border-b">
                  <Link href="/" className="flex items-center space-x-2" onClick={() => setMobileMenuOpen(false)}>
-                    <Logo className="h-6 w-6 text-primary" />
-                    <span className="font-bold text-sm">WordWave</span>
+                    <Logo className="h-6 w-6 text-brand-primary" />
+                    <span className="font-bold text-sm text-brand-primary">WordWave</span>
                   </Link>
                 <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 text-brand-primary" />
                   <span className="sr-only">Close Menu</span>
                 </Button>
               </div>
               <nav className="flex flex-col space-y-4">
                 {navLinks.map(link => <NavLink key={link.href} {...link} />)}
                  {isAuthenticated && (
-                    <Button variant="ghost" onClick={() => { logout(); setMobileMenuOpen(false); }} className="justify-start">
+                    <Button variant="outline" onClick={() => { logout(); setMobileMenuOpen(false); }} className="justify-start border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-white">
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </Button>
