@@ -65,6 +65,7 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        'animated-background': '#1a202c', // Example color
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -88,10 +89,22 @@ export default {
             height: '0',
           },
         },
+        'gradient-move': {
+          '0%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
+          '100%': {
+            'background-position': '0% 50%',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'gradient-move': 'gradient-move 8s ease infinite',
       },
     },
   },

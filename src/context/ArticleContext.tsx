@@ -63,20 +63,15 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, []);
-
-  const persistArticles = (updatedArticles: Article[]) => {
-    setArticles(updatedArticles);
-    localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
-  };
   
-  const persistTrendingArticle = (trending: TrendingArticle | null) => {
+  const persistTrendingArticle = useCallback((trending: TrendingArticle | null) => {
     setTrendingArticleState(trending);
     if(trending) {
         localStorage.setItem(TRENDING_ARTICLE_STORAGE_KEY, JSON.stringify(trending));
     } else {
         localStorage.removeItem(TRENDING_ARTICLE_STORAGE_KEY);
     }
-  };
+  }, []);
 
   const addArticle = useCallback((articleData: Omit<Article, 'id' | 'published' | 'createdAt' | 'likes' | 'author'>, author: string) => {
     const newArticle: Article = {
@@ -87,34 +82,65 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
       likes: 0,
       author: author,
     };
-    const updatedArticles = [newArticle, ...articles];
-    persistArticles(updatedArticles);
-  }, [articles]);
+    setArticles(prevArticles => {
+        const updatedArticles = [newArticle, ...prevArticles];
+        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+        return updatedArticles;
+    });
+  }, []);
 
   const updateArticleStatus = useCallback((id: string, published: boolean) => {
-    const updatedArticles = articles.map(article =>
-      article.id === id ? { ...article, published } : article
-    );
-    persistArticles(updatedArticles);
-  }, [articles]);
+    setArticles(prevArticles => {
+        const articleToUpdate = prevArticles.find(article => article.id === id);
+        if (!articleToUpdate) {
+            return prevArticles;
+        }
+
+        const updatedArticles = prevArticles.map(article =>
+            article.id === id ? { ...article, published } : article
+        );
+
+        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+
+        toast({
+            title: `Article ${published ? 'Published' : 'Unpublished'}`,
+            description: `"${articleToUpdate.title}" has been successfully ${published ? 'published' : 'unpublished'}.`,
+        });
+
+        return updatedArticles;
+    });
+  }, [toast]);
 
   const deleteArticle = useCallback((id: string) => {
-    const updatedArticles = articles.filter(article => article.id !== id);
-    persistArticles(updatedArticles);
-    toast({
-        title: "Article Deleted",
-        description: "The article has been successfully deleted.",
+    setArticles(prevArticles => {
+        const articleToDelete = prevArticles.find(article => article.id === id);
+        if (!articleToDelete) {
+            return prevArticles;
+        }
+
+        const updatedArticles = prevArticles.filter(article => article.id !== id);
+        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+
+        toast({
+            title: "Article Deleted",
+            description: `"${articleToDelete.title}" has been successfully deleted.`,
+        });
+
+        return updatedArticles;
     });
-  }, [articles, toast]);
+  }, [toast]);
 
   const likeArticle = useCallback((id: string) => {
-    const updatedArticles = articles.map(article =>
-        article.id === id ? { ...article, likes: (article.likes || 0) + 1 } : article
-    );
-    persistArticles(updatedArticles);
-  }, [articles]);
+    setArticles(prevArticles => {
+        const updatedArticles = prevArticles.map(article =>
+            article.id === id ? { ...article, likes: (article.likes || 0) + 1 } : article
+        );
+        localStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(updatedArticles));
+        return updatedArticles;
+    });
+  }, []);
   
-  const setTrendingArticle = async (article: Article) => {
+  const setTrendingArticle = useCallback(async (article: Article) => {
     // Immediately set the trending article with a placeholder summary
     const newTrendingArticle: TrendingArticle = {
       title: article.title,
@@ -152,7 +178,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
             description: "Could not generate trending summary.",
         });
     }
-  };
+  }, [toast, persistTrendingArticle]);
 
   const getArticleById = useCallback((id: string) => {
     return articles.find(article => article.id === id);

@@ -25,7 +25,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased bg-background min-h-screen flex flex-col">
+      <body className="font-body antialiased bg-gradient-to-r from-background to-animated-background animate-gradient-move min-h-screen flex flex-col">
         <AuthProvider>
           <ArticleProvider>
             <Header />
