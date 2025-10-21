@@ -1,23 +1,32 @@
 
 "use client";
 
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/context/AuthContext';
 import { ArticleContext } from '@/context/ArticleContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Hourglass, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Hourglass, User, Mail } from 'lucide-react';
 
 export default function ProfilePage() {
   const authContext = useContext(AuthContext);
   const articleContext = useContext(ArticleContext);
+  const router = useRouter();
 
-  if (!authContext || !articleContext || !authContext.user) {
+  useEffect(() => {
+    if (!authContext?.loading && !authContext?.isAuthenticated) {
+      router.push('/login');
+    }
+  }, [authContext?.loading, authContext?.isAuthenticated, router]);
+
+  if (!authContext || !articleContext || authContext.loading || !authContext.user) {
     return <div>Loading...</div>;
   }
 
-  const { user } = authContext;
+  const { user, logout } = authContext;
   const { articles } = articleContext;
 
   const userArticles = articles
@@ -27,16 +36,21 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-4">
             <User className="h-12 w-12 text-primary" />
             <div>
               <CardTitle className="text-3xl font-bold">{user.username}</CardTitle>
-              <CardDescription>Here are the articles you've submitted.</CardDescription>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Mail className="h-4 w-4" />
+                <span>{user.email}</span>
+              </div>
             </div>
           </div>
+          <Button onClick={logout} variant="outline">Logout</Button>
         </CardHeader>
         <CardContent>
+          <h2 className="text-2xl font-semibold mb-4">Your Articles</h2>
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
